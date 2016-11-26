@@ -7,7 +7,7 @@ class LSTM_state:
     def __init__(self, input_dim, output_dim, num_mem_cells):
         '''At time t=0 initialize the states to zeros'''
 
-        self.x = np.zeros(input_dim)
+        self.xc = np.zeros(input_dim)
         self.g = np.zeros(num_mem_cells)
         self.i = np.zeros(num_mem_cells)
         self.f = np.zeros(num_mem_cells)
