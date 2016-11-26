@@ -51,8 +51,7 @@ class LSTM_param:
         self.mbo = np.zeros_like(self.bo)
         self.mby = np.zeros_like(self.by)
 
-    def apply_grad(self, loss, smooth_loss, lr=0.1):
-        smooth_loss = smooth_loss * 0.999 + loss * 0.001
+    def apply_grad(self, lr=0.1):
         dwg = self.dwg
         dwi = self.dwi
         dwf = self.dwf
@@ -86,8 +85,6 @@ class LSTM_param:
         self.bf += -lr * dbf / np.sqrt(self.mbf + 1e-8)
         self.bo += -lr * dbo / np.sqrt(self.mbo + 1e-8)
         self.by += -lr * dby / np.sqrt(self.mby + 1e-8)
-
-        return smooth_loss
 
     def __init__(self, input_dim, output_dim, num_mem_cells=100):
         ''' Initialize weights, bias,  character indexing
