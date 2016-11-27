@@ -1,4 +1,3 @@
-import pdb
 import numpy as np
 from network import LSTM_network
 
@@ -12,7 +11,6 @@ class LSTM:
             input_txt_file - text file input containing the test characters
         '''
 
-        pdb.set_trace()
         data = []
         with open(input_txt_file, 'r') as f:
             data = f.read()
@@ -37,7 +35,7 @@ class LSTM:
             num_layers - number of LSTM layers, default=1
             lr - learning rate, default=0.1
         '''
-        self.seq_len = 25
+        self.seq_len = seq_len
         self.num_hidden_units = num_hidden_units
         self.num_layers = num_layers
         self.objLstmNet = LSTM_network(self.vocab_size, self.vocab_size, seq_len, num_mem_cells=num_hidden_units, num_layers=num_layers)
@@ -71,23 +69,37 @@ class LSTM:
                 s_prev[layer] = objLstmNet.lstm_node_list[layer][num_samples - 1].state.s
                 h_prev[layer] = objLstmNet.lstm_node_list[layer][num_samples - 1].state.h
 
-            pdb.set_trace()
             objLstmNet.calculate_loss(y_list, self.num_layers)
             objLstmNet.feed_backward(y_list, self.num_layers)
             objLstmNet.apply_grad(learning_rate)
-            # objLstmNet.reset()
+            objLstmNet.reset()
 
-            # if sample_n % 100 == 0:
-            # text = self.sample_text(inputs[0], h_prev, s_prev, 50)
-            # print('--------Iter:{} -> Loss: {}--------------'.format(sample_n, self.objLstmNet.loss))
-            # print(text)
-            # print('--------------------------------------------------')
+            if sample_n % 100 == 0:
+                print('--------Iter:{} -> Loss: {}--------------'.format(sample_n, self.objLstmNet.loss))
+                text = self.sample(inputs[0], h_prev, s_prev)
+                print(text)
+                print('--------------------------------------------------')
 
             ptr = ptr + self.seq_len
             sample_n = sample_n + 1
 
+    def sample(self, startIdx, s_prev, h_prev):
+        idx = startIdx
+        seq = []
+        seq.append(self.index_to_char[idx])
+        objLstmNet = self.objLstmNet
+        for i in range(self.seq_len):
+            x_one_hot = np.zeros((self.vocab_size))
+            x_one_hot[idx] = 1
+            objLstmNet.feed_forward(x_one_hot, i, self.num_layers, s_prev, h_prev)
+            pred = objLstmNet.lstm_node_list[self.num_layers - 1][i].state.prob
+            idx = np.random.choice(range(self.vocab_size), p=pred.ravel())
+            seq.append(self.index_to_char[idx])
+
+        return ''.join(seq)
+
 
 if '__main__' == __name__:
     objLSTM = LSTM('./input.txt')
-    objLSTM.build_network(seq_len=25, num_hidden_units=100, num_layers=3)
+    objLSTM.build_network(seq_len=25, num_hidden_units=100, num_layers=1)
     objLSTM.train(learning_rate=0.1)
