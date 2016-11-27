@@ -17,7 +17,7 @@ class LSTM_node:
     def sigmoid(self, x):
         return 1. / (1 + np.exp(-x))
 
-    def forward_pass(self, x, s_prev=None, h_prev=None):
+    def forward_pass(self, x, s_prev=None, h_prev=None, is_output_layer=False):
         ''' LSTM forward pass'''
 
         # At time t = 0
@@ -41,6 +41,7 @@ class LSTM_node:
         self.state.s = self.state.g * self.state.i + s_prev * self.state.f
         self.state.h = np.tanh(self.state.s) * self.state.o
         # self.state.h = self.state.s * self.state.o
-        self.state.y = np.dot(self.param.wy, self.state.h) + self.param.by
-        pred = self.state.y
-        self.state.prob = np.exp(pred) / np.sum(np.exp(pred))
+        if is_output_layer:
+            self.state.y = np.dot(self.param.wy, self.state.h) + self.param.by
+            pred = self.state.y
+            self.state.prob = np.exp(pred) / np.sum(np.exp(pred))
