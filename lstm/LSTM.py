@@ -101,5 +101,5 @@ class LSTM:
 
 if '__main__' == __name__:
     objLSTM = LSTM('./input.txt')
-    objLSTM.build_network(seq_len=25, num_hidden_units=100, num_layers=1)
+    objLSTM.build_network(seq_len=25, num_hidden_units=100, num_layers=3)
     objLSTM.train(learning_rate=0.1)
